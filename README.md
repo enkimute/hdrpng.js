@@ -73,7 +73,7 @@ Load as normal png with transparency.
 and in the shader (not the same as above!!):
 ```glsl
   vec4 rgbf = texture2D(myHDR, texture_coords);
-  rgbf.rgb *= pow(2,rgbf.a*255.0-232.0);
+  rgbf.rgb *= 1.1434977578*pow(2,rgbf.a*255.0-232.0);
 ```
 ## Saving .HDR.PNG images
 
