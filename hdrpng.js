@@ -1,24 +1,7 @@
 var HDRImage = (function() {
   /**
    * HDRImage - wrapper that exposes default Image like interface for HDR imgaes. (till extending HTMLCanvasElement actually works ..)
-   * @returns {HTMLCanvasElement} a html canvas element that has an "Image" like interface.
-   * @example 
-   *     var a = new HDRImage();
-   *     a.src = "arches_2k.hdr.png";
-   *     // or a.src = "arches_2k.hdr"; 
-   *     document.body.appendChild(a);
-   *     ..
-   *     a.exposure = 2;
-   *     a.gamma = 2.2;
-   *     ..
-   *     // webgl upload as LDR
-   *     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, a);
-   *
-   *     // webgl upload as float HDR
-   *     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, a.width, a.height, 0, gl.RGB, gl.FLOAT, a.dataFloat);
-   *   
-   *     // webgl upload as RGBE HDR
-   *     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, a.width, a.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, a.dataRGBE);
+   * @returns {HDRImage} a html HDR image element
    */
   function HDRImage() {
     var res = document.createElement('canvas'), HDRsrc='t',HDRexposure=1.0,HDRgamma=2.2,HDRdata=null,context,HDRD;
