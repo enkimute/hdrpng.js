@@ -4,7 +4,8 @@ var HDRImage = (function() {
    * @returns {HTMLCanvasElement} a html canvas element that has an "Image" like interface.
    * @example 
    *     var a = new HDRImage();
-   *     a.src = "arches_2k.hdr";
+   *     a.src = "arches_2k.hdr.png";
+   *     // or a.src = "arches_2k.hdr"; 
    *     document.body.appendChild(a);
    *     ..
    *     a.exposure = 2;
@@ -30,7 +31,8 @@ var HDRImage = (function() {
     res.__defineGetter__('src',function(){return HDRsrc});
     res.__defineSetter__('src',function(val){
       HDRsrc=val;
-      loadHDR(val,function(img,width,height){
+      context&&context.clearRect(0,0,this.width,this.height);
+      if (val.match(/\.hdr$/i)) loadHDR(val,function(img,width,height){
         HDRdata = img;
         this.width = this.style.width = width;
         this.height = this.style.height = height;
@@ -39,7 +41,23 @@ var HDRImage = (function() {
         rgbeToLDR(img,HDRexposure,HDRgamma,HDRD.data);
         context.putImageData(HDRD,0,0);
         this.onload&&this.onload(); 
-      }.bind(res))
+      }.bind(res));
+      else if (val.match(/\.hdr\.png$/i)) {
+        var i = new Image();
+        i.src = val;
+        i.onload = function() {
+          this.width  = this.style.width  = i.width;
+          this.height = this.style.height = i.height;
+          context = this.getContext('2d');
+          context.globalCompositeOperation='copy';
+          context.drawImage(i,0,0);
+          HDRD = context.getImageData(0,0,this.width,this.height);
+          HDRdata = rgbfToRgbe(HDRD.data);
+          rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
+          context.putImageData(HDRD,0,0);
+          this.onload&&this.onload(); 
+        }.bind(this);
+      }
     });
     return res;
   }  
@@ -104,6 +122,37 @@ var HDRImage = (function() {
     return res;
   }
   
+  /** Convert an RGBE buffer to a RGBF buffer
+    * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
+    * @param {Uint8Array} [res] Optional result buffer containing the modified RGBF values (premultiply safe).
+    * @returns {Uint8Array} buffer with premultiply safe RGBF values.
+    */
+  function rgbeToRgbf(buffer,res) {
+    var l=buffer.byteLength>>2, res=res||new Uint8ClampedArray(l*4);
+    for (var i=0;i<l;i++) {
+      res[i*4]    = buffer[i*4]*223/255;
+      res[i*4+1]  = buffer[i*4+1]*223/255;
+      res[i*4+2]  = buffer[i*4+2]*223/255;
+      res[i*4+3]  = 224 + Math.min(31,Math.max(0,buffer[i*4+3]-128+16));
+    }
+    return res;
+  }
+  
+  /** Convert an RGBF buffor to an RGBE buffer.
+    * @param {Uint8Array} buffer The input buffer in RGBF format. (as returned from loadHDRPNG)
+    * @param {Uint8Array} [res] Optional result buffer containing the modified RGBE values.
+    */                           
+  function rgbfToRgbe(buffer,res) {
+    var l=buffer.byteLength>>2, res=res||new Uint8ClampedArray(l*4);
+    for (var i=0;i<l;i++) {
+      res[i*4]    = buffer[i*4]*255/223;
+      res[i*4+1]  = buffer[i*4+1]*255/223;
+      res[i*4+2]  = buffer[i*4+2]*255/223;
+      res[i*4+3]  = (buffer[i*4+3]&31)-16+128;
+    }
+    return res;
+  }  
+  
   /** Convert an RGBE buffer to LDR with given exposure and display gamma.
     * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
     * @param {float} [exposure=1] Optional exposure value. (1=default, 2=1 step up, 3=2 steps up, -2 = 3 steps down)
@@ -129,12 +178,3 @@ var HDRImage = (function() {
   HDRImage.rgbeToLDR = rgbeToLDR;
   return HDRImage;
 })();
-
-
-
-
-
-
-
-
-
