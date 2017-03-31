@@ -51,7 +51,7 @@ in the shader :
   vec4 rgbe = texture2D(myHDR, texture_coords);
   rgbe.rgb *= pow(2,rgbe.a*255.0-128.0+8.0);
 ```
-#### When your HDR's are saved as .HDR.PNG you can use them directly in your current LDR workflow and unpack in the shader.
+#### .HDR.PNG file can be used directly in your current LDR workflow.
 
 Load as normal png with transparency.
 ```javascript
@@ -83,6 +83,6 @@ HDR (Radiance) files are HDR images that are stored using an internal 32 bit for
 
 Check this page to see it in action and convert your HDR files to .HDR.PNG
 
-(http://jr.enki.ws/hdrtest.htm hdr example)
+http://jr.enki.ws/hdrtest.htm
 
 
