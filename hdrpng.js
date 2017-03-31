@@ -28,6 +28,16 @@ var HDRImage = (function() {
     res.__defineSetter__('gamma',function(val){ HDRgamma=val; if (HDRdata) { rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); context.putImageData(HDRD,0,0); }});
     res.__defineGetter__('dataFloat',function(){ return rgbeToFloat(HDRdata); });
     res.__defineGetter__('dataRGBE',function(){ return HDRdata; });
+    res.toHDRDataURL = function() {
+      context&&context.clearRect(0,0,this.width,this.height);
+      rgbeToRgbf(HDRdata,HDRD.data);
+      context.globalCompositeOperation='copy';
+      context.putImageData(HDRD,0,0);
+      var ret=this.toDataURL();
+      rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); 
+      context.putImageData(HDRD,0,0);
+      return ret;
+    }
     res.__defineGetter__('src',function(){return HDRsrc});
     res.__defineSetter__('src',function(val){
       HDRsrc=val;
