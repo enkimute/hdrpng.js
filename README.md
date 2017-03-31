@@ -68,7 +68,7 @@ Load as normal png with transparency.
   var i = new Image(); // -> not HDRImage !!
   i.src = 'texture.HDR.PNG';
   ...
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, i);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, i);
 ```
 and in the shader (not the same as above!!):
 ```glsl
