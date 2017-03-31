@@ -1,7 +1,7 @@
 hdrpng.js
 =========
 
-A new high dynamic range image format ready for todays web.
+HDR Image handling for the web with support for Radiance .HDR files and a custom modified HDR.PNG format.
 
 * Smallest HDR format. 
 * Native loading/decompressing by using the PNG format.
