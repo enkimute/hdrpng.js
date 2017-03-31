@@ -51,6 +51,20 @@ in the shader :
   vec4 rgbe = texture2D(myHDR, texture_coords);
   rgbe.rgb *= pow(2,rgbe.a*255.0-128.0+8.0);
 ```
+#### When your HDR's are saved as .HDR.PNG you can use them directly in your current LDR workflow and unpack in the shader.
+
+Load as normal png with transparency.
+```javascript
+  var i = new Image();
+  i.src = 'texture.HDR.PNG';
+  ...
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, i);
+```
+and in the shader (not the same as above!!):
+```
+  vec4 rgbf = texture2D(myHDR, texture_coords);
+  rgbf.rgb *= pow(2,rgbf.a*255.0-232.0);
+```
 
 ## Supported formats :
 
