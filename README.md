@@ -11,7 +11,7 @@ HDR Image handling for the web with support for Radiance .HDR files and a custom
 
 HDRPNG.js adds HDR image support to your browser. It integrates smoothly in both HTML and webGL use scenarios.
 
-## Loading, displaying and using .HDR images
+## Loading, displaying and using .HDR and .HDR.PNG images
 
 #### The HDRImage constructor can be used to load HDR images just like the Image constructor is used for LDR images.
 
@@ -65,6 +65,21 @@ and in the shader (not the same as above!!):
   vec4 rgbf = texture2D(myHDR, texture_coords);
   rgbf.rgb *= pow(2,rgbf.a*255.0-232.0);
 ```
+## Saving .HDR.PNG images
+
+hdrpng.js can be used to convert Radiance .HDR files to the internal .HDR.PNG format.
+```
+  var myHDR = new HDRImage();
+  myHDR.src = 'memorial.hdr';
+  myHDR.onload = function() {
+    var myLink = document.createElement('a');
+    a.href = myHDR.toHDRDataURL();
+    a.download = 'memorial.hdr.png';
+    a.innerHTML = 'right click to save';
+    document.body.appendChild(a); // or a.click()
+  }
+```
+
 
 ## Supported formats :
 
