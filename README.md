@@ -72,7 +72,7 @@ hdrpng.js can be used to convert Radiance .HDR files to the internal .HDR.PNG fo
   var myHDR = new HDRImage();
   myHDR.src = 'memorial.hdr';
   myHDR.onload = function() {
-    var myLink = document.createElement('a');
+    var a = document.createElement('a');
     a.href = myHDR.toHDRDataURL();
     a.download = 'memorial.hdr.png';
     a.innerHTML = 'right click to save';
