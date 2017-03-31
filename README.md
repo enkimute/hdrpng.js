@@ -11,22 +11,24 @@ HDR Image handling for the web with support for Radiance .HDR files and a custom
 
 HDRPNG.js adds HDR image support to your browser. It integrates smoothly in both HTML and webGL use scenarios.
 
-#### Loading, displaying and using .HDR images
+## Loading, displaying and using .HDR images
 
-The HDRImage constructor can be used to load HDR images just like the Image constructor is used for LDR images.
+#### The HDRImage constructor can be used to load HDR images just like the Image constructor is used for LDR images.
 
 ```javascript
 var myHDR = new HDRImage();
 myHDR.src = 'memorial.hdr';
 document.body.appendChild(myHDR);
 ```
-Exposure (in stops) and Gamma (as exponent) can be adjusted before or after loading.
+
+#### Exposure (in stops) and Gamma (as exponent) can be adjusted before or after loading.
 
 ```javascript
 myHDR.exposure = 2.0;  // 1 stop up. 
 myHDR.gamma = 1.0;     // display curve linear.      
 ```
-HDRImages can be used as sources for texImage calls.
+
+#### HDRImages can be used as sources for texImage calls.
 
 ```javascript
 var myHDR = new HDRImage();
@@ -36,11 +38,13 @@ myHDR.onload = function() {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, a.width, a.height, 0, gl.RGB, gl.FLOAT, myHDR.dataFloat); // upload as full linear float
 }  
 ```
-HDRImages can be uploaded in RGBE format to be decoded in the shader.
+
+#### HDRImages can be uploaded in RGBE format to be decoded in the shader.
 
 ```javascript
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, a.width, a.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, myHDR.dataRGBE);
 ```
+in the shader : 
 ```glsl
   vec4 rgbe = texture2D(myHDR, texture_coords);
   rgbe.rgb *= pow(2,rgbe.a*255.0-128.0+8.0);
