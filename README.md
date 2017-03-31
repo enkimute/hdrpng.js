@@ -3,6 +3,12 @@ hdrpng.js
 
 A new high dynamic range image format ready for todays web.
 
+* Smallest HDR format. 
+* Native loading/decompressing by using the PNG format.
+* Works in premultiplied alpha scenarios.
+* HDR float range : 0.0000152587890625 to 32768. (7.875 bits mantissa, 5 bits exponent) 
+* Efficient to render both on canvas and from webGL.
+
 HDRPNG.js provides a minimal set of utilities to load, process, display and save High Dynamic Range image formats in the browser. It supports common HDR image formats, introduces a new web-friendly format that uses PNG as container and it provides basic tonemapping and exposure operators.
 
 # Supported formats :
