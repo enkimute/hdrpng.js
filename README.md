@@ -34,8 +34,10 @@ myHDR.gamma = 1.0;     // display curve linear.
 var myHDR = new HDRImage();
 myHDR.src = 'memorial.hdr.png';
 myHDR.onload = function() {
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, myHDR);  // upload as LDR with current exposure/gamma
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, a.width, a.height, 0, gl.RGB, gl.FLOAT, myHDR.dataFloat); // upload as full linear float
+// upload as LDR with current exposure/gamma
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, myHDR);  
+// upload as full linear float  
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, a.width, a.height, 0, gl.RGB, gl.FLOAT, myHDR.dataFloat); 
 }  
 ```
 
