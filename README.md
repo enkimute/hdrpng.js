@@ -39,6 +39,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 </SCRIPT>
 
 
+
 #### Using HDR images in your HTML pages.
 
 The HDRImage() constructor allows you to create a new HDR Image Element that can be used like an ordinary Image element. To load a HDR image, simply set the src attribute.
