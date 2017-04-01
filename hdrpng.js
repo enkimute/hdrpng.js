@@ -45,7 +45,7 @@ var HDRImage = (function() {
           context.globalCompositeOperation='copy';
           context.drawImage(i,0,0);
           HDRD = context.getImageData(0,0,this.width,this.height);
-          HDRdata.set(HDRD.data); 
+          HDRdata = new Uint8Array(HDRD.data); 
           rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
           context.putImageData(HDRD,0,0);
           this.onload&&this.onload(); 
