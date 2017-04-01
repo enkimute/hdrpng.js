@@ -5,8 +5,6 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 ## Examples
 
-See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
-
 <DIV ID="demo_hdr" STYLE="display:none">
   View this page on github pages to get live examples .. 
   
@@ -21,11 +19,15 @@ See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
   myHDR.src = "memorial_mini.hdr.png";
   
   demo.innerHTML = 
+    "You can drag and drop your own .HDR files on this page .. <BR>"+
     "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
     "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
   demo.appendChild(myHDR);
   demo.style.display="block";
+  window.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect='link'; }
+  window.ondrop = function(e) { e.preventDefault(); e.stopPropagation(); myHDR.src = URL.createObjectURL(e.dataTransfer.files[0])+'#'+e.dataTransfer.files[0].name; }
+  
 </SCRIPT>
 
 
