@@ -107,6 +107,9 @@ and in the shader (not the same as above!!):
   vec4 rgbf = texture2D(myHDR, texture_coords);
   rgbf.rgb *= 1.1434977578*pow(2,rgbf.a*255.0-232.0);
 ```
+
+<IFRAME SRC="ibl_webgl_demo.html" WIDTH=100% HEIGHT=300px></IFRAME>
+
 ## Saving .HDR.PNG images
 
 hdrpng.js can be used to convert Radiance .HDR files to the internal .HDR.PNG format.
