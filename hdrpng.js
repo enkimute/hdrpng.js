@@ -13,7 +13,7 @@ var HDRImage = (function() {
     res.__defineGetter__('dataRGBE',function(){ return HDRdata; });
     res.toHDRDataURL = function() {
       context&&context.clearRect(0,0,this.width,this.height);
-      rgbeToRgbf(HDRdata,HDRD.data);
+      HDRD.data.set(HDRdata);
       context.globalCompositeOperation='copy';
       context.putImageData(HDRD,0,0);
       var ret=this.toDataURL();
@@ -27,7 +27,7 @@ var HDRImage = (function() {
       context&&context.clearRect(0,0,this.width,this.height);
       if (val.match(/\.hdr$/i)) loadHDR(val,function(img,width,height){
         HDRdata = img;
-        this.width = this.style.width = width;
+        this.width  = this.style.width  = width;
         this.height = this.style.height = height;
         context = this.getContext('2d');
         HDRD = context.getImageData(0,0,width,height);
@@ -45,7 +45,7 @@ var HDRImage = (function() {
           context.globalCompositeOperation='copy';
           context.drawImage(i,0,0);
           HDRD = context.getImageData(0,0,this.width,this.height);
-          HDRdata = rgbfToRgbe(HDRD.data);
+          HDRdata.set(HDRD.data); 
           rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
           context.putImageData(HDRD,0,0);
           this.onload&&this.onload(); 
@@ -65,23 +65,23 @@ var HDRImage = (function() {
   function loadHDR( url, completion ) {
     var req = m(new XMLHttpRequest(),{responseType:"arraybuffer"});
     req.onerror = completion.bind(req,false);
-    req.onload  = function(e) {
+    req.onload  = function() {
       if (this.status>=400) return this.onerror();
       var header='',pos=0,d8=new Uint8Array(this.response),format;
     // read header.  
       while (!header.match(/\n\n[^\n]+\n/g)) header += String.fromCharCode(d8[pos++]);
     // check format. 
       format = header.match(/FORMAT=(.*)$/m)[1];
-      if (format!='32-bit_rle_rgbe') return console.warn('unknown HDR format : '+format),this.onerror();
+      if (format!='32-bit_rle_rgbe') return console.warn('unknown format : '+format),this.onerror();
     // parse resolution
-      var rez=header.split(/\n/).reverse()[1].split(' '), flipY=rez[0]=='-Y', width=rez[3]*1, height=rez[1]*1;
+      var rez=header.split(/\n/).reverse()[1].split(' '), width=rez[3]*1, height=rez[1]*1;
     // Create image.
       var img=new Uint8Array(width*height*4),ipos=0;
     // Read all scanlines
       for (var j=0; j<height; j++) {
         var rgbe=d8.slice(pos,pos+=4),scanline=[];
-        if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR not rle encoded while it should be ..'),this.onerror();
-        if (rgbe[2]<<8+rgbe[3]!=width) return console.warn('HDR with invalid scanline length ..'),this.onerror();
+        if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR parse error ..'),this.onerror();
+        if (rgbe[2]<<8+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
         for (var i=0;i<4;i++) {
             var ptr=i*width,ptr_end=(i+1)*width,buf,count;
             while (ptr<ptr_end){
@@ -115,37 +115,6 @@ var HDRImage = (function() {
     return res;
   }
   
-  /** Convert an RGBE buffer to a RGBF buffer
-    * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
-    * @param {Uint8Array} [res] Optional result buffer containing the modified RGBF values (premultiply safe).
-    * @returns {Uint8Array} buffer with premultiply safe RGBF values.
-    */
-  function rgbeToRgbf(buffer,res) {
-    var l=buffer.byteLength>>2, res=res||new Uint8ClampedArray(l*4);
-    for (var i=0;i<l;i++) {
-      res[i*4]    = buffer[i*4]*223/255;
-      res[i*4+1]  = buffer[i*4+1]*223/255;
-      res[i*4+2]  = buffer[i*4+2]*223/255;
-      res[i*4+3]  = 224 + Math.min(31,Math.max(0,buffer[i*4+3]-128+16));
-    }
-    return res;
-  }
-  
-  /** Convert an RGBF buffor to an RGBE buffer.
-    * @param {Uint8Array} buffer The input buffer in RGBF format. (as returned from loadHDRPNG)
-    * @param {Uint8Array} [res] Optional result buffer containing the modified RGBE values.
-    */                           
-  function rgbfToRgbe(buffer,res) {
-    var l=buffer.byteLength>>2, res=res||new Uint8ClampedArray(l*4);
-    for (var i=0;i<l;i++) {
-      res[i*4]    = buffer[i*4]*255/223;
-      res[i*4+1]  = buffer[i*4+1]*255/223;
-      res[i*4+2]  = buffer[i*4+2]*255/223;
-      res[i*4+3]  = (buffer[i*4+3]&31)-16+128;
-    }
-    return res;
-  }  
-  
   /** Convert an RGBE buffer to LDR with given exposure and display gamma.
     * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
     * @param {float} [exposure=1] Optional exposure value. (1=default, 2=1 step up, 3=2 steps up, -2 = 3 steps down)
@@ -166,8 +135,5 @@ var HDRImage = (function() {
     return res;
   }
   
-  HDRImage.loadHDR = loadHDR;
-  HDRImage.rgbeToFloat = rgbeToFloat;
-  HDRImage.rgbeToLDR = rgbeToLDR;
   return HDRImage;
 })();
