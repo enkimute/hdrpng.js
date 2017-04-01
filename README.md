@@ -124,7 +124,7 @@ hdrpng.js can be used to convert Radiance .HDR files to the internal .HDR.PNG fo
 ## Supported formats :
 
 * .HDR (Radiance .HDR files) [8b mantissa, 8b shared exponent]
-* .HDR.PNG (HDR embedded in PNG) [7.875b mantissa, 5b shared exponent]
+* .HDR.PNG (HDR embedded in PNG) [7.8b mantissa, 5b shared exponent]
 
 ### why .HDR ?
 
@@ -139,12 +139,12 @@ While HDR files are great, using them in a browser today comes at a cost. Compar
 
 With the RGBE format being a 32bit format, a png with transparency seems the ideal candidate to store RGBE images. This however fails. Modern browsers treat PNG images as premultiplied and will thus assume that none of the color values is greater than the alpha value. And by assume I mean make sure. 
 
-So it seems impossible to store channels with a different meaning in the alpha channel of a png file. Our design works around this problem by reducing the size of the exponent to 5 bits, and always setting the upper 3 bits of the alpha value. This leaves 2^-7 to 2^24 as exponent (more than sufficient for any HDR images we've seen). The mantissa gets reduced by this operation to the 0-224 range. (or 7.875 bits). The result is a PNG file that does not get destroyed by the premultiplied-alpha assumptions, can be loaded with the native loader and gives you high dynamic range in your webGL projects with almost no extra cost. 
+So it seems impossible to store channels with a different meaning in the alpha channel of a png file. Our design works around this problem by reducing the size of the exponent to 5 bits, and always setting the upper 3 bits of the alpha value. This leaves 2^-7 to 2^24 as exponent (more than sufficient for any HDR images we've seen). The mantissa gets reduced by this operation to the 0-224 range. (or 7.8 bits). The result is a PNG file that does not get destroyed by the premultiplied-alpha assumptions, can be loaded with the native loader and gives you high dynamic range in your webGL projects with almost no extra cost. 
 
 * Smallest HDR format.
 * Native loading.
 * Survives premultiplied alpha fixes.
-* HDR float range : 0.0000152587890625 to 32768. (7.875 bits mantissa, 5 bits shared exponent) 
+* HDR float range : 0.0000152587890625 to 32768. (7.8 bits mantissa, 5 bits shared exponent) 
 * Single multiply and pow in the shader to unpack.
 
 Enjoy ;)
