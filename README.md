@@ -20,7 +20,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   
   demo.innerHTML = 
     "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
-    "<INPUT TYPE='button' VALUE='save HDR PNG' ONCLICK='savePNG()'/><BR>"+
+    "<INPUT TYPE='button' VALUE='save HDR PNG' ONCLICK='savePNG()'/><BR><BR>"+
     "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
     "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
