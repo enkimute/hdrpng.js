@@ -5,7 +5,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 ## Download
 
-3.4 kb minified js : https://enkimute.github.io/hdrpng/hdrpng.min.js
+3.4 kb minified js : <https://enkimute.github.io/hdrpng/hdrpng.min.js>
 
 ## Examples
 
