@@ -20,17 +20,11 @@ See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
   var myHDR = new HDRImage();
   myHDR.src = "memorial_mini.hdr.png";
   
-  demo.innerHTML = '';
+  demo.innerHTML = 
+    "Exposure : <NPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/><BR>"+
+    "Gamma : <INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /><BR>";
+    
   demo.appendChild(myHDR);
-  demo.style.display="block";
-  
-  var exposure = document.createElement("input");
-  exposure.type = "range"
-  exposure.min  = -8;
-  exposure.max  = 8;
-  exposure.step = 0.1;
-  exposure.oninput = function(){ myHDR.exposure = this.value; };
-  demo.appendChild(exposure);
 </SCRIPT>
 
 
