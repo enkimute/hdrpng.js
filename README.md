@@ -21,10 +21,11 @@ See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
   myHDR.src = "memorial_mini.hdr.png";
   
   demo.innerHTML = 
-    "Exposure : <INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/><BR>"+
-    "Gamma : <INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /><BR>";
+    "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
+    "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
   demo.appendChild(myHDR);
+  demo.style.display="block";
 </SCRIPT>
 
 
