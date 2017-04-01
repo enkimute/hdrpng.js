@@ -7,18 +7,22 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
 
-<DIV ID="demo_hdr" STYLE="display:none">
-  <INPUT TYPE="range" TITLE="exposure" MIN=-8 MAX=8 STEP=0.1 VALUE=1 ONINPUT="myHDR.exposure=this.value"/>
-</DIV>
+<DIV ID="demo_hdr" STYLE="display:none"></DIV>
 <SCRIPT SRC="hdrpng.js"></SCRIPT>
 <SCRIPT>
   var $=document.getElementById.bind(document);
   
   var myHDR = new HDRImage();
   myHDR.src = "memorial.hdr.png";
-  myHDR.id  = "myHDR";
   $("demo_hdr").appendChild(myHDR);
-  $("demo_hdr").style.display="block"
+  $("demo_hdr").style.display="block";
+  
+  var exposure = document.createElement("input");
+  exposure.type = "range"
+  exposure.min  = -8;
+  exposure.max  = 8;
+  exposure.step = 0.1;
+  exposure.oninput = function(){ myHDR.exposure = this.value; }
 </SCRIPT>
 
 
