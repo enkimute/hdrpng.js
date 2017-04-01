@@ -1,7 +1,7 @@
 HDRPNG
 ======
 
-HDRPNG adds HDR Image support to your browser. It allows you to load industry standard Radiance .HDR files and a custom modified HDR.PNG format. The new format bypasses the problems with premultiplied alpha and png files to enable a full native HDR loader for webGL applications. (read more below the samples).
+HDRPNG adds HDR Image support to your browser. It allows you to load industry standard Radiance .HDR files and adds a custom modified HDR PNG format. The new format bypasses the problems with premultiplied alpha and png files to enable a full native HDR loader for webGL applications. (read more below the samples).
 
 ## Examples
 
@@ -36,8 +36,7 @@ HDRImage Objects can be used as textures in webGL in a couple of ways :
 * as LDR images with the given exposure and gamma.
 * as full floating point images (96 bits per pixel)
 * as RGBE images to be decoded in the shader (32 bits per pixel)
-
-In addition, the HDR.PNG format allows you to use HDR images in your webGL projects without using a javascript loader. The HDR.PNG images can simply be loaded by the build-in PNG loader, and decoded at minimal cost in the shader.
+* as HDR PNG images loaded natively - decoded in shader (see next example)
 
 ```javascript
 var myHDR = new HDRImage();
