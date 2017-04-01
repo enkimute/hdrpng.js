@@ -3,6 +3,10 @@ HDRPNG
 
 HDRPNG adds HDR Image support to your browser. It allows you to load industry standard Radiance .HDR files and PNG files containing RGBE information. (which can also be saved using hdrpng.js)
 
+## Download
+
+2961 bytes - <https://enkimute.github.io/hdrpng/hdrpng.min.js>
+
 ## Examples
 
 <DIV ID="demo_hdr" STYLE="display:none">
@@ -16,7 +20,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   var demo = $("demo_hdr");
   
   var myHDR = new HDRImage();
-  myHDR.src = "memorial_mini.hdr";
+  myHDR.src = "memorial_mini.hdr.png";
   
   demo.innerHTML = 
     "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
