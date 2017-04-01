@@ -110,7 +110,10 @@ and in the shader (not the same as above!!):
   rgbf.rgb *= 1.1434977578*pow(2,rgbf.a*255.0-232.0);
 ```
 
-<DIV ID="hdr-gl"></DIV>
+<DIV ID="hdr-gl">
+  View this page on github live to see the samples ..
+  https://enkimute.github.io/hdrpng/
+</DIV>
 
 ## Saving .HDR.PNG images
 
