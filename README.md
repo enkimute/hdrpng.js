@@ -18,6 +18,8 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   var myHDR = new HDRImage();
   myHDR.src = "memorial_mini.hdr.png";
   
+  $("hdr-gl").innerHTML="<IFRAME SRC="ibl_webgl_demo.html" WIDTH=100% HEIGHT=300px></IFRAME>";
+  
   demo.innerHTML = 
     "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
     "<INPUT TYPE='button' VALUE='save HDR PNG' ONCLICK='savePNG()'/><BR><BR>"+
@@ -108,7 +110,7 @@ and in the shader (not the same as above!!):
   rgbf.rgb *= 1.1434977578*pow(2,rgbf.a*255.0-232.0);
 ```
 
-<IFRAME SRC="ibl_webgl_demo.html" WIDTH=100% HEIGHT=300px></IFRAME>
+<DIV ID="hdr-gl"></DIV>
 
 ## Saving .HDR.PNG images
 
