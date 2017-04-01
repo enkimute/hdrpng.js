@@ -101,7 +101,7 @@ Load as normal png with transparency.
   ...
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, i);
 ```
-and in the shader (not the same as above!!):
+and in the shader
 ```glsl
   vec4 rgbe = texture2D(myHDR, texture_coords);
   rgbe.rgb *= pow(2,rgbe.a*255.0-128.0+8.0);
