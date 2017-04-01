@@ -18,7 +18,7 @@ See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
   var demo = $("demo_hdr");
   
   var myHDR = new HDRImage();
-  myHDR.src = "memorial.hdr.png";
+  myHDR.src = "memorial_mini.hdr.png";
   
   demo.innerHTML = '';
   demo.appendChild(myHDR);
