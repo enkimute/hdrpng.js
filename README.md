@@ -6,6 +6,8 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 ## Examples
 
 See a live demo : http://jr.enki.ws/hdrtest.htm
+{% include hdrtest.html %}
+
 
 #### Using HDR images in your HTML pages.
 
