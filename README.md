@@ -19,7 +19,8 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   myHDR.src = "memorial_mini.hdr.png";
   
   demo.innerHTML = 
-    "You can drag and drop your own .HDR files on this page .. <BR>"+
+    "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
+    "<INPUT TYPE='button' VALUE='save HDR PNG' ONCLICK='savePNG()'/><BR>"+
     "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
     "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
@@ -27,6 +28,13 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   demo.style.display="block";
   window.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect='link'; }
   window.ondrop = function(e) { e.preventDefault(); e.stopPropagation(); myHDR.src = URL.createObjectURL(e.dataTransfer.files[0])+'#'+e.dataTransfer.files[0].name; }
+  
+  function savePNG() {
+      var a=document.createElement('a');
+      a.href = myHDR.toHDRDataURL();
+      a.download = 'output.hdr.png';
+      a.click();
+   }
   
 </SCRIPT>
 
