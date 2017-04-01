@@ -3,14 +3,19 @@ HDRPNG
 
 HDRPNG adds HDR Image support to your browser. It allows you to load industry standard Radiance .HDR files and adds a custom modified HDR PNG format. The new format bypasses the problems with premultiplied alpha and png files to enable a full native HDR loader for webGL applications. (read more below the samples).
 
+## Download
+
+3.4 kb minified js : <https://enkimute.github.io/hdrpng/hdrpng.min.js>
+
 ## Examples
+
 
 <DIV ID="demo_hdr" STYLE="display:none">
   View this page on github pages to get live examples .. 
   
   https://enkimute.github.io/hdrpng
 </DIV>
-<SCRIPT SRC="hdrpng.js"></SCRIPT>
+<SCRIPT SRC="hdrpng.min.js"></SCRIPT>
 <SCRIPT>
   var $=document.getElementById.bind(document);
   var demo = $("demo_hdr");
