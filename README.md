@@ -7,10 +7,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 See a live demo : http://jr.enki.ws/hdrtest.htm
 
-<SCRIPT>
-console.log('enki');
-</SCRIPT>
-
+<IFRAME SRC="http://jr.enki.ws/hdrtest.htm">
 
 #### Using HDR images in your HTML pages.
 
