@@ -7,6 +7,14 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
 
+<DIV ID="demo_hdr">sample here</DIV>
+<SCRIPT SRC="hdrpng.js"></SCRIPT>
+<SCRIPT>
+  var myHDR = new HDRImage();
+  myHDR.src = "memorial.hdr.png";
+  document.getElementByID("demo_hdr").appendChild(myHDR);
+</SCRIPT>
+
 #### Using HDR images in your HTML pages.
 
 The HDRImage() constructor allows you to create a new HDR Image Element that can be used like an ordinary Image element. To load a HDR image, simply set the src attribute.
