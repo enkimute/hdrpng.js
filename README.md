@@ -5,7 +5,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
 
 ## Examples
 
-See a live demo : https://enkimute.github.io/hdrpng/hdrtest.html
+See a live demo here : https://enkimute.github.io/hdrpng/hdrtest.html
 
 <DIV ID="demo_hdr">sample here</DIV>
 <SCRIPT SRC="hdrpng.js"></SCRIPT>
