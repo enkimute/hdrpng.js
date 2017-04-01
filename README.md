@@ -16,7 +16,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   var demo = $("demo_hdr");
   
   var myHDR = new HDRImage();
-  myHDR.src = "memorial_mini.hdr.png";
+  myHDR.src = "memorial_mini.hdr";
   
   demo.innerHTML = 
     "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
