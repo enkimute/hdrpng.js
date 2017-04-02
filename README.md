@@ -28,7 +28,10 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
     "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
     "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
-  $('hdrdl').style["-webkit-appearance"] = $('hdrdl').style['-moz-appearance'] = $('hdrdl').style.appearance = 'button';  
+  $('hdrdl').style["-webkit-appearance"] = $('hdrdl').style['-moz-appearance'] = $('hdrdl').style.appearance = 'button';
+  $('hdrdl').style.color = '#444';
+  $('hdrdl').style.padding = '5px';
+  $('hdrdl').style.textDecoration = 'none';
   demo.appendChild(myHDR);
   demo.style.display="block";
   window.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect='link'; }
