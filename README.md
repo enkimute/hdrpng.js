@@ -24,21 +24,21 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   
   demo.innerHTML = 
     "You can drag and drop your own .HDR files on this page and save them as .HDR.PNG <BR><BR>"+
-    "<INPUT TYPE='button' VALUE='save HDR PNG' ONCLICK='savePNG()'/><BR><BR>"+
+    "<A ID="hdrdl" HREF='memorial_mini.hdr.png' DOWNLOAD='memorial_mini.hdr.png'>save HDR PNG</A><BR><BR>"+
     "<INPUT TYPE='range' MIN=-8 MAX=8 STEP=0.1 VALUE=1 TITLE='Exposure' ONINPUT='myHDR.exposure=this.value'/> Exposure<BR>"+
     "<INPUT TYPE='range' MIN=0.5 MAX=3 STEP=0.1 VALUE=2.2 TITLE='Gamma' ONINPUT='myHDR.gamma=this.value' /> Gamma<BR>";
     
+  $('hdrdl').style["-webkit-appearance"] = $('hdrdl').style['-moz-appearance'] = $('hdrdl').style.appearance = 'button';  
   demo.appendChild(myHDR);
   demo.style.display="block";
   window.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect='link'; }
-  window.ondrop = function(e) { e.preventDefault(); e.stopPropagation(); myHDR.src = URL.createObjectURL(e.dataTransfer.files[0])+'#'+e.dataTransfer.files[0].name; }
+  window.ondrop = function(e) { 
+    e.preventDefault(); e.stopPropagation(); 
+    myHDR.src = URL.createObjectURL(e.dataTransfer.files[0])+'#'+e.dataTransfer.files[0].name; 
+    $('hdrdl').href = myHDR.toHDRDataURL();
+    $('hdrdl').download = e.dataTransfer.files[0].name.replace(/\.hdr$/i,'.hdr.png');
+  }
   
-  function savePNG() {
-      var a=document.createElement('a');
-      a.href = myHDR.toHDRDataURL();
-      a.download = 'output.hdr.png';
-      a.click();
-   }
   
 </SCRIPT>
 
