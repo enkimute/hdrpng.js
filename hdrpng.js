@@ -21,7 +21,7 @@ var HDRImage = (function() {
       context.putImageData(HDRD,0,0);
       return ret;
     }
-    res.toBlob = function(cb,m,q) {
+    res.toHDRBlob = function(cb,m,q) {
       HDRD.data.set(HDRdata);
       context.globalCompositeOperation='copy';
       context.putImageData(HDRD,0,0);
