@@ -81,7 +81,7 @@ var HDRImage = (function() {
       for (var j=0; j<height; j++) {
         var rgbe=d8.slice(pos,pos+=4),scanline=[];
         if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR parse error ..'),this.onerror();
-        if (rgbe[2]<<8+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
+        if ((rgbe[2]<<8)+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
         for (var i=0;i<4;i++) {
             var ptr=i*width,ptr_end=(i+1)*width,buf,count;
             while (ptr<ptr_end){
