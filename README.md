@@ -41,7 +41,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
     myHDR.src = URL.createObjectURL(e.dataTransfer.files[0])+'#'+e.dataTransfer.files[0].name; 
     requestAnimationFrame(function(){ 
       $('hdrdl').href = myHDR.toHDRDataURL(); 
-      console.log('href set ..');
+      console.log('href set ..',myHDR.src,myHDR.width);
     });
     $('hdrdl').download = e.dataTransfer.files[0].name.replace(/\.hdr$/i,'.hdr.png');
   }
