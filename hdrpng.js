@@ -21,6 +21,16 @@ var HDRImage = (function() {
       context.putImageData(HDRD,0,0);
       return ret;
     }
+    res.toBlob = function(cb,m,q) {
+      HDRD.data.set(HDRdata);
+      context.globalCompositeOperation='copy';
+      context.putImageData(HDRD,0,0);
+      this.toBlob(function(b){
+        rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); 
+        context.putImageData(HDRD,0,0);
+        cb(b);
+      },m,q);
+    }
     res.__defineGetter__('src',function(){return HDRsrc});
     res.__defineSetter__('src',function(val){
       HDRsrc=val;
