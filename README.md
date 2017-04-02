@@ -34,6 +34,7 @@ HDRPNG adds HDR Image support to your browser. It allows you to load industry st
   $('hdrdl').style.textDecoration = 'none';
   demo.appendChild(myHDR);
   demo.style.display="block";
+  demo.style.maxWidth='100%';
   window.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect='link'; }
   window.ondrop = function(e) { 
     e.preventDefault(); e.stopPropagation(); 
