@@ -1,6 +1,7 @@
-HDRPNG
-======
+# hdrpng.js - HDR images for the web.
 
-HDRPNG adds HDR Image support to your browser. It allows you to load industry standard Radiance .HDR files and PNG files containing RGBE information. (which can also be saved using hdrpng.js)
+<IMG SRC="hdrpng.jpg">
+
+A small (3146 bytes) script to add support for radiance HDR and RGBE PNG images to your browser.
 
 Info, Help & Live Sample at <https://enkimute.github.io/hdrpng.js>
