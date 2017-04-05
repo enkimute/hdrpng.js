@@ -1,4 +1,13 @@
-var HDRImage = (function() {
+/**
+ * hdrpng.js - support for Radiance .HDR and RGBE images in PNG.
+ * @author Enki
+ * @desc Exposes a HDRImage interface that allows you to load .HDR files or PNG's with RGBE info and use them in HTML and webGL. It also allows you to save those PNG's. 
+ */
+(function (name, context, definition) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition();
+  else if (typeof define == 'function' && define.amd) define(name, definition);
+  else context[name] = definition();
+}('HDRImage', this, function () {
   /**
    * HDRImage - wrapper that exposes default Image like interface for HDR imgaes. (till extending HTMLCanvasElement actually works ..)
    * @returns {HDRImage} a html HDR image element
@@ -45,6 +54,10 @@ var HDRImage = (function() {
         context.putImageData(HDRD,0,0);
         this.onload&&this.onload(); 
       }.bind(res));
+      else if (val.match(/\.exr$/i)) loadEXR(val,function(img,width,height){
+        console.log('exr load : ', img, width, height);
+        this.onload&&this.onload();
+      }.bind(res));
       else if (val.match(/\.hdr\.png$/i)) {
         var i = new Image();
         i.src = val;
@@ -67,6 +80,45 @@ var HDRImage = (function() {
   
   function m(a,b) { for (var i in b) a[i]=b[i]; return a; };
 
+  /** Load and parse a ILM EXR file.
+    * .. tbc .. port tinyEXR pif support ? 
+    */
+  function loadEXR( url, completion ) {
+    var req = m(new XMLHttpRequest(),{responseType:"arraybuffer"});
+    req.onerror = completion.bind(req,false);
+    req.onload  = function() {
+      var pos=0,d8=new Uint8Array(this.response);
+      
+      // helpers.
+      function u32() { return (d8[pos++]<<0)+(d8[pos++]<<8)+(d8[pos++]<<16)+(d8[pos++]<<24); };
+      function u24() { return (d8[pos++]<<0)+(d8[pos++]<<8)+(d8[pos++]<<16); };
+      function u16() { return (d8[pos++]<<0)+(d8[pos++]<<8); };
+      function u8()  { return d8[pos++]; };
+      function s()   { var ret='',cur; while (cur=u8()) ret+=String.fromCharCode(cur); return ret; }; 
+      
+      // header, version, flags checks.
+      if (u32() != 20000630) return console.log('EXR invalid'),this.onerror();
+      if (u8() > 2)          return console.log('EXR unsupported version'),this.onerror();
+      if (u24() != 0)        return console.log('EXR only simple files ..'),this.onerror();
+      
+      // parse header.
+      if (s() != 'channels' || s() != 'chlist') return console.log('EXR invalid headers'),this.onerror();
+      var channels = [], pos2 = u32()+pos;
+      while (pos < pos2-1) channels.push({name:s(),type:u32(),u0:u8(),u1:u24(),u2:u32(),u2:u32()}); u8();
+      if (s() != 'compression' || s() != 'compression') return console.log('EXR only simple files ..'),this.onerror();
+      console.log(u32(),u8());
+      if (u32(),u8()) return console.log('EXR compression not supported'),this.onerror();
+
+
+      completion&&completion();
+      
+    }
+    req.open("GET",url,true);
+    req.send(null);
+    return req;
+  }  
+    
+    
   /** Load and parse a Radiance .HDR file. It completes with a 32bit RGBE buffer.
     * @param {URL} url location of .HDR file to load.
     * @param {function} completion completion callback.
@@ -146,4 +198,4 @@ var HDRImage = (function() {
   }
   
   return HDRImage;
-})();
+}));
