@@ -2,6 +2,6 @@
 
 <IMG SRC="hdrpng.jpg">
 
-A small (4475 bytes) script to add support for radiance HDR and RGBE PNG images to your browser.
+A small (6145 bytes) script to add support for radiance HDR and RGBE PNG images to your browser.
 
 Info, Help & Live Sample at <https://enkimute.github.io/hdrpng.js>
