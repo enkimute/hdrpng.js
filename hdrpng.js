@@ -20,25 +20,51 @@
     res.__defineSetter__('gamma',function(val){ HDRgamma=val; if (HDRdata) { rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); context.putImageData(HDRD,0,0); }});
     res.__defineGetter__('dataFloat',function(){ return rgbeToFloat(HDRdata); });
     res.__defineGetter__('dataRGBE',function(){ return HDRdata; });
-    res.toHDRDataURL = function() {
-      context&&context.clearRect(0,0,this.width,this.height);
-      HDRD.data.set(HDRdata);
-      context.globalCompositeOperation='copy';
-      context.putImageData(HDRD,0,0);
-      var ret=this.toDataURL();
-      rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); 
-      context.putImageData(HDRD,0,0);
-      return ret;
-    }
     res.toHDRBlob = function(cb,m,q) {
-      HDRD.data.set(HDRdata);
-      context.globalCompositeOperation='copy';
-      context.putImageData(HDRD,0,0);
-      this.toBlob(function(b){
-        rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data); 
-        context.putImageData(HDRD,0,0);
-        cb(b);
-      },m,q);
+      // Array to image.. slightly more involved.  
+        function createShader(gl, source, type) {
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        }
+        function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
+            var program = gl.createProgram();
+            gl.attachShader(program, createShader(gl, vertexShaderSource, gl.VERTEX_SHADER));
+            gl.attachShader(program, createShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER));
+            gl.linkProgram(program);
+            return program;
+        };
+        var ar = new Uint8Array(HDRdata.buffer);
+        var vs2='precision highp float;\nattribute vec3 position;\nvarying vec2 tex;\nvoid main() { tex = position.xy/2.0+0.5; gl_Position = vec4(position, 1.0); }';
+        var fs2='precision highp float;\nprecision highp sampler2D;\nuniform sampler2D tx;\nvarying vec2 tex;\nvoid main() { gl_FragColor = texture2D(tx,tex); }';
+        var x = this.width, y = this.height;
+        if (x*y*4 < ar.byteLength) return console.error('not big enough.');
+        var c = document.createElement('canvas');
+        c.width=x; c.height=y;
+        var gl = c.getContext('webgl',{antialias:false,alpha:true,premultipliedAlpha:false,preserveDrawingBuffer:true});
+
+        var texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);  gl.bindTexture(gl.TEXTURE_2D, texture);  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, x, y, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(ar.buffer));
+
+        var program2 = createProgram(gl, vs2, fs2), uniformTexLocation = gl.getUniformLocation(program2, 'tx');
+
+        var positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1,  1, 0, 1,  1, 0, -1,  1, 0, -1, -1, 0 ]), vertexPosBuffer=gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+       
+        gl.enableVertexAttribArray(0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+        gl.useProgram(program2);
+        gl.uniform1i(uniformTexLocation, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        if (cb) return c.toBlob(cb); 
     }
     res.__defineGetter__('src',function(){return HDRsrc});
     res.__defineSetter__('src',function(val){
@@ -62,17 +88,29 @@
         var i = new Image();
         i.src = val;
         i.onload = function() {
-          this.width  = this.style.width  = i.width;
-          this.height = this.style.height = i.height;
+          var c = document.createElement('canvas'), x=this.width=this.style.width=c.width=i.width, y=this.height=this.style.height=c.height=i.height, gl=c.getContext('webgl');
+
+          var texture = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, i);
+           
+          fb = gl.createFramebuffer();
+          gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+          gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+          var res = new Uint8Array(x*y*4);
+          gl.readPixels(0,0,x,y,gl.RGBA,gl.UNSIGNED_BYTE,res);
+
+          gl.deleteTexture(texture);
+          gl.deleteFramebuffer(fb);
+          
+          HDRdata = res;
           context = this.getContext('2d');
-          context.globalCompositeOperation='copy';
-          context.drawImage(i,0,0);
-          HDRD = context.getImageData(0,0,this.width,this.height);
-          HDRdata = new Uint8Array(HDRD.data); 
+          HDRD = context.getImageData(0,0,x,y);
           rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
           context.putImageData(HDRD,0,0);
           this.onload&&this.onload(); 
-        }.bind(this);
+        }.bind(res);
       }
     });
     return res;
