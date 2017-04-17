@@ -1,7 +1,7 @@
 /**
- * hdrpng.js - support for Radiance .HDR and RGBE images in PNG.
+ * hdrpng.js - support for Radiance .HDR and RGBE / RGB9_E5 images in PNG.
  * @author Enki
- * @desc Exposes a HDRImage interface that allows you to load .HDR files or PNG's with RGBE info and use them in HTML and webGL. It also allows you to save those PNG's. 
+ * @desc load/save Radiance .HDR, RGBE in PNG and RGB9_E5 in PNG for HTML5, webGL, webGL2.
  */
 (function (name, context, definition) {
   if (typeof module != 'undefined' && module.exports) module.exports = definition();
@@ -29,13 +29,13 @@
             return shader;
         }
         function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
-            var program = gl.createProgram();
-            gl.attachShader(program, createShader(gl, vertexShaderSource, gl.VERTEX_SHADER));
-            gl.attachShader(program, createShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER));
-            gl.linkProgram(program);
+            var program = gl.createProgram(),vs,fs;
+            gl.attachShader(program, vs=createShader(gl, vertexShaderSource, gl.VERTEX_SHADER));
+            gl.attachShader(program, fs=createShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER));
+            gl.linkProgram(program); gl.deleteShader(vs); gl.deleteShader(fs);
             return program;
         };
-        var ar = new Uint8Array(HDRdata.buffer);
+        var ar = (m && m.match(/rgb9_e5/i)) ? new Uint8Array( floatToRgb9_e5(rgbeToFloat(HDRdata)).buffer ) : new Uint8Array(HDRdata.buffer);
         var vs2='precision highp float;\nattribute vec3 position;\nvarying vec2 tex;\nvoid main() { tex = position.xy/2.0+0.5; gl_Position = vec4(position, 1.0); }';
         var fs2='precision highp float;\nprecision highp sampler2D;\nuniform sampler2D tx;\nvarying vec2 tex;\nvoid main() { gl_FragColor = texture2D(tx,tex); }';
         var x = this.width, y = this.height;
@@ -50,19 +50,20 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, x, y, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(ar.buffer));
 
-        var program2 = createProgram(gl, vs2, fs2), uniformTexLocation = gl.getUniformLocation(program2, 'tx');
+        var program = createProgram(gl, vs2, fs2), uniformTexLocation = gl.getUniformLocation(program, 'tx');
 
         var positions = new Float32Array([-1, -1, 0, 1, -1, 0, 1,  1, 0, 1,  1, 0, -1,  1, 0, -1, -1, 0 ]), vertexPosBuffer=gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-       
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
-        gl.useProgram(program2);
+        gl.useProgram(program);
         gl.uniform1i(uniformTexLocation, 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+        
+        gl.deleteTexture(texture);
+        gl.deleteProgram(program);
 
         if (cb) return c.toBlob(cb); 
     }
@@ -80,11 +81,35 @@
         context.putImageData(HDRD,0,0);
         this.onload&&this.onload(); 
       }.bind(res));
-      else if (val.match(/\.exr$/i)) loadEXR(val,function(img,width,height){
-        console.log('exr load : ', img, width, height);
-        this.onload&&this.onload();
-      }.bind(res));
-      else if (val.match(/\.hdr\.png$/i)) {
+      else if (val.match(/\.rgb9_e5\.png$/i)) {
+        var i = new Image();
+        i.src = val;
+        i.onload = function() {
+          var c = document.createElement('canvas'), x=this.width=this.style.width=c.width=i.width, y=this.height=this.style.height=c.height=i.height, gl=c.getContext('webgl');
+
+          var texture = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, i);
+           
+          fb = gl.createFramebuffer();
+          gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+          gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+          var res = new Uint8Array(x*y*4);
+          gl.readPixels(0,0,x,y,gl.RGBA,gl.UNSIGNED_BYTE,res);
+
+          gl.deleteTexture(texture);
+          gl.deleteFramebuffer(fb);
+          
+          this.dataRAW = new Uint32Array(res.buffer);
+          HDRdata = floatToRgbe(rgb9_e5ToFloat(this.dataRAW));
+          context = this.getContext('2d');
+          HDRD = context.getImageData(0,0,x,y);
+          rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
+          context.putImageData(HDRD,0,0);
+          this.onload&&this.onload(); 
+        }.bind(res);
+      } else if (val.match(/\.hdr\.png$|\.rgbe\.png/i)) {
         var i = new Image();
         i.src = val;
         i.onload = function() {
@@ -117,45 +142,6 @@
   }  
   
   function m(a,b) { for (var i in b) a[i]=b[i]; return a; };
-
-  /** Load and parse a ILM EXR file.
-    * .. tbc .. port tinyEXR pif support ? 
-    */
-  function loadEXR( url, completion ) {
-    var req = m(new XMLHttpRequest(),{responseType:"arraybuffer"});
-    req.onerror = completion.bind(req,false);
-    req.onload  = function() {
-      var pos=0,d8=new Uint8Array(this.response);
-      
-      // helpers.
-      function u32() { return (d8[pos++]<<0)+(d8[pos++]<<8)+(d8[pos++]<<16)+(d8[pos++]<<24); };
-      function u24() { return (d8[pos++]<<0)+(d8[pos++]<<8)+(d8[pos++]<<16); };
-      function u16() { return (d8[pos++]<<0)+(d8[pos++]<<8); };
-      function u8()  { return d8[pos++]; };
-      function s()   { var ret='',cur; while (cur=u8()) ret+=String.fromCharCode(cur); return ret; }; 
-      
-      // header, version, flags checks.
-      if (u32() != 20000630) return console.log('EXR invalid'),this.onerror();
-      if (u8() > 2)          return console.log('EXR unsupported version'),this.onerror();
-      if (u24() != 0)        return console.log('EXR only simple files ..'),this.onerror();
-      
-      // parse header.
-      if (s() != 'channels' || s() != 'chlist') return console.log('EXR invalid headers'),this.onerror();
-      var channels = [], pos2 = u32()+pos;
-      while (pos < pos2-1) channels.push({name:s(),type:u32(),u0:u8(),u1:u24(),u2:u32(),u2:u32()}); u8();
-      if (s() != 'compression' || s() != 'compression') return console.log('EXR only simple files ..'),this.onerror();
-      console.log(u32(),u8());
-      if (u32(),u8()) return console.log('EXR compression not supported'),this.onerror();
-
-
-      completion&&completion();
-      
-    }
-    req.open("GET",url,true);
-    req.send(null);
-    return req;
-  }  
-    
     
   /** Load and parse a Radiance .HDR file. It completes with a 32bit RGBE buffer.
     * @param {URL} url location of .HDR file to load.
@@ -198,6 +184,58 @@
     req.send(null);
     return req;
   }
+
+  /** Convert a float buffer to a RGB9_E5 buffer. (ref https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_shared_exponent.txt)
+    * @param {Float32Array} Buffer Floating point input buffer (96 bits/pixel).
+    * @param {Uint32Array} [res] Optional output buffer with 32 bit RGB9_E5 per pixel.
+    * @returns {Uint32Array} A 32bit uint32 array in RGB9_E5
+    */
+  function floatToRgb9_e5(buffer,res) {
+    var r,g,b,v,maxColor,ExpShared,denom,s,l=(buffer.byteLength/12)|0, res=res||new Uint32Array(l);
+    for (var i=0;i<l;i++) {
+      r=Math.min(32768.0,buffer[i*3]); g=Math.min(32768.0,buffer[i*3+1]); b=Math.min(32768.0,buffer[i*3+2]);
+      maxColor = Math.max(Math.max(r,g),b);
+      ExpShared = Math.max(-16,Math.floor(Math.log2(maxColor))) + 16;
+      denom = Math.pow(2,ExpShared-24);
+      if (Math.floor(maxColor/denom+0.5) == 511) { denom *= 2; ExpShared += 1; }
+      res[i] = (Math.floor(r/denom+0.5)<<23)+(Math.floor(g/denom+0.5)<<14)+(Math.floor(b/denom+0.5)<<5)+ (ExpShared|0);
+    }
+    return res;
+  }
+
+  /** Convert an RGB9_E5 buffer to a Float buffer.
+    * @param {Uint32Array} Buffer in RGB9_E5 format. (Uint32 buffer).
+    * @param {Float32Array} [res] Optional float output buffer.
+    * @returns {Float32Array} A Float32Array.
+    */
+  function rgb9_e5ToFloat(buffer,res) {
+    var v,s,l=buffer.byteLength>>2, res=res||new Float32Array(l*3);
+    for (var i=0;i<l;i++) {
+      v = buffer[i]; s = Math.pow(2,(v&31)-24);
+      res[i*3]   =  (v>>>23)*s;
+      res[i*3+1] = ((v>>>14)&511)*s;
+      res[i*3+2] = ((v>>>5)&511)*s;
+    }
+    return res;
+  }
+
+  /** Convert a float buffer to a RGBE buffer.
+    * @param {Float32Array} Buffer Floating point input buffer (96 bits/pixel).
+    * @param {Uint8Array} [res] Optional output buffer with 32 bit RGBE per pixel.
+    * @returns {Uint8Array} A 32bit uint8 array in RGBE
+    */
+  function floatToRgbe(buffer,res) {
+    var r,g,b,v,s,l=(buffer.byteLength/12)|0, res=res||new Uint8Array(l*4);
+    for (var i=0;i<l;i++) {
+      r = buffer[i*3]; g = buffer[i*3+1]; b = buffer[i*3+2];
+      v = Math.max(Math.max(r,g),b); e = Math.ceil(Math.log2(v)); s = Math.pow(2,e-8);
+      res[i*4]   = (r/s)|0;
+      res[i*4+1] = (g/s)|0;
+      res[i*4+2] = (b/s)|0;
+      res[i*4+3] = (e+128);
+    }
+    return res;
+  }
   
   /** Convert an RGBE buffer to a Float buffer.
     * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
@@ -234,6 +272,39 @@
     }
     return res;
   }
+
+  /** Convert an float buffer to LDR with given exposure and display gamma.
+    * @param {Float32Array} buffer The input buffer in floating point format. 
+    * @param {float} [exposure=1] Optional exposure value. (1=default, 2=1 step up, 3=2 steps up, -2 = 3 steps down)
+    * @param {float} [gamma=2.2]  Optional display gamma to respect. (1.0 = linear, 2.2 = default monitor)
+    * @param {Array} [res] res Optional result buffer.
+    */
+  function floatToLDR(buffer,exposure,gamma,res) {
+    exposure = Math.pow(2,exposure===undefined?1:exposure)/2;
+    if (gamma===undefined) gamma = 2.2;
+    var one_over_gamma=1/gamma,s,l=(buffer.byteLength/12)|0, res=res||new Uint8ClampedArray(l*4);
+    for (var i=0;i<l;i++) {
+      res[i*4]  =255*Math.pow(buffer[i*3]*exposure,one_over_gamma);
+      res[i*4+1]=255*Math.pow(buffer[i*3+1]*exposure,one_over_gamma);
+      res[i*4+2]=255*Math.pow(buffer[i*3+2]*exposure,one_over_gamma);
+      res[i*4+3]=255;
+    }
+    return res;
+  }
+  
+  
+  // Float/RGBE conversions.
+  HDRImage.floatToRgbe = floatToRgbe;
+  HDRImage.rgbeToFloat = rgbeToFloat;
+
+  // Float/RGB9_E5 conversions.
+  HDRImage.floatToRgb9_e5 = floatToRgb9_e5;
+  HDRImage.rgb9_e5ToFloat = rgb9_e5ToFloat; 
+
+  // x to LDR conversion.
+  HDRImage.rgbeToLDR   = rgbeToLDR;
+  HDRImage.floatToLDR  = floatToLDR;
+  
   
   return HDRImage;
 }));

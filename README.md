@@ -2,7 +2,7 @@
 
 <IMG SRC="hdrpng.jpg">
 
-A small (6145 bytes) script to add support for radiance HDR and RGBE PNG images to your browser.
+A small (7067 bytes) script to add support for radiance HDR and RGBE PNG images to your browser.
 
 * Loading Radiance .HDR files. (rgbe format)
 * Loading/Saving 32bit RGBE.PNG files.
