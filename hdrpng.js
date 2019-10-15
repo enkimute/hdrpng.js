@@ -166,17 +166,31 @@
     // Read all scanlines
       for (var j=0; j<height; j++) {
         var rgbe=d8.slice(pos,pos+=4),scanline=[];
-        if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR parse error ..'),this.onerror();
-        if ((rgbe[2]<<8)+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
-        for (var i=0;i<4;i++) {
-            var ptr=i*width,ptr_end=(i+1)*width,buf,count;
-            while (ptr<ptr_end){
-                buf = d8.slice(pos,pos+=2);
-                if (buf[0] > 128) { count = buf[0]-128; while(count-- > 0) scanline[ptr++] = buf[1]; } 
-                             else { count = buf[0]-1; scanline[ptr++]=buf[1]; while(count-->0) scanline[ptr++]=d8[pos++]; }
-            }
-        }
-        for (var i=0;i<width;i++) { img[ipos++]=scanline[i]; img[ipos++]=scanline[i+width]; img[ipos++]=scanline[i+2*width]; img[ipos++]=scanline[i+3*width]; }
+        if (rgbe[0]!=2) {
+          var len=width,rs=0; pos-=4; while (len>0) {
+            img.set(d8.slice(pos,pos+=4),ipos); 
+            if (img[ipos]==1&&img[ipos+1]==1&&img[ipos+2]==1) {
+              for (img[ipos+3]<<rs; i>0; i--) {
+                img.set(img.slice(ipos-4,ipos),ipos);
+                ipos+=4;
+                len--
+              }
+              rs+=8;
+            } else { len--; ipos+=4; rs=0; }
+          }
+        } else {
+          if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR parse error ..'),this.onerror();
+          if ((rgbe[2]<<8)+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
+          for (var i=0;i<4;i++) {
+              var ptr=i*width,ptr_end=(i+1)*width,buf,count;
+              while (ptr<ptr_end){
+                  buf = d8.slice(pos,pos+=2);
+                  if (buf[0] > 128) { count = buf[0]-128; while(count-- > 0) scanline[ptr++] = buf[1]; } 
+                               else { count = buf[0]-1; scanline[ptr++]=buf[1]; while(count-->0) scanline[ptr++]=d8[pos++]; }
+              }
+          }
+          for (var i=0;i<width;i++) { img[ipos++]=scanline[i]; img[ipos++]=scanline[i+width]; img[ipos++]=scanline[i+2*width]; img[ipos++]=scanline[i+3*width]; }
+        }  
       }
       completion&&completion(img,width,height);
     }
