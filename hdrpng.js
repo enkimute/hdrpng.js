@@ -166,7 +166,7 @@
     // Read all scanlines
       for (var j=0; j<height; j++) {
         var rgbe=d8.slice(pos,pos+=4),scanline=[];
-        if (rgbe[0]!=2) {
+        if (rgbe[0]!=2||(rgbe[1]!=2)||(rgbe[2]&0x80)) {
           var len=width,rs=0; pos-=4; while (len>0) {
             img.set(d8.slice(pos,pos+=4),ipos); 
             if (img[ipos]==1&&img[ipos+1]==1&&img[ipos+2]==1) {
@@ -179,7 +179,6 @@
             } else { len--; ipos+=4; rs=0; }
           }
         } else {
-          if ((rgbe[0]!=2)||(rgbe[1]!=2)||(rgbe[2]&0x80)) return console.warn('HDR parse error ..'),this.onerror();
           if ((rgbe[2]<<8)+rgbe[3]!=width) return console.warn('HDR line mismatch ..'),this.onerror();
           for (var i=0;i<4;i++) {
               var ptr=i*width,ptr_end=(i+1)*width,buf,count;
